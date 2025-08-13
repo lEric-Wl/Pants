@@ -2,6 +2,12 @@
     "manifest_version": 2,
     "version": "1.0",
     "name": "Pants",
-    "description": "Makes Youtube Shorts less addictive"
+    "description": "Makes Youtube Shorts less addictive",
+    "content_scripts": [
+        {
+            "matches": ["*://www.youtube.com/shorts/*"],
+            "js": ["script.js"]
+        }
+    ]
 }
 
