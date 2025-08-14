@@ -5,7 +5,7 @@
     "description": "Makes Youtube Shorts less addictive",
     "content_scripts": [
         {
-            "matches": ["*://www.youtube.com/shorts/*"],
+            "matches": ["*://www.youtube.com/*"],
             "js": ["script.js"]
         }
     ]

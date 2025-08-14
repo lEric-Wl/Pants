@@ -1,7 +1,16 @@
-var link = document.URL;
-console.log("THIS IS THE LINK------------------",link);
+function redirect(link = document.URL) {
+    if (link.includes("shorts")) {
+        console.log("shorts detected");
+        let videoId = link.split("/shorts/")[1].split("?")[0];
+        history.pushState(null,"","https://www.youtube.com/watch?v=" + videoId);
+        window.location.reload()
+        console.log("redirected");
+    }
+}
 
-var videoId = link.split("/").at(-1);
-console.log("THIS IS THE VIDEO ID------------------", videoId);
+document.addEventListener("click", () => { //This is the most reliable way check for shorts content I found so far
+    console.log("click event triggered");
+    redirect();
+});
 
-window.location.href = "https://www.youtube.com/watch?v=" + videoId;
+redirect();
