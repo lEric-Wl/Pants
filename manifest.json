@@ -8,6 +8,13 @@
             "matches": ["*://www.youtube.com/*"],
             "js": ["script.js"]
         }
-    ]
+    ],
+    "permissions": [
+        "webNavigation"
+    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    }
 }
 
