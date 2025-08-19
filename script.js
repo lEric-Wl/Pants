@@ -18,9 +18,10 @@ function redirect(link = document.URL) {
     }
 }
 
-var hideShorts = false;
-function findSections(){
-    if(!hideShorts) return; // If the user chooses not to hide shorts, then immediately return this function
+async function findSections(){
+    var hideShorts = await browser.storage.local.get("hideShorts");
+    console.log("hideShorts value:", hideShorts.hideShorts);
+    if(!hideShorts.hideShorts) return; // If the user chooses not to hide shorts, then immediately return this function
     console.log("Removing");
     let observer = new MutationObserver(() => {
         var shelves = document.querySelectorAll("ytd-rich-shelf-renderer");
@@ -31,20 +32,20 @@ function findSections(){
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     console.log("Message received:", message);
     if (message.action === "redirect") {
         redirect();
         sendResponse({status: "done"});
         return true; 
     }
-    else if (message.action === "home" && hideShorts == true){
+    else if (message.action === "home"){
         console.log("Home action triggered");
-        findSections();
+        await findSections();
         sendResponse({status: "sections removed"});
         return true; 
     }
     return false;
 });
 
-findSections();
+findSections(); //This is to call it on initial load
