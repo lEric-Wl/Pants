@@ -19,7 +19,7 @@ function redirect(link = document.URL) {
 }
 
 async function findSections(){
-    var hideShorts = await browser.storage.local.get("hideShorts");
+    let hideShorts = await browser.storage.local.get("hideShorts");
     console.log("hideShorts value:", hideShorts.hideShorts);
     if(!hideShorts.hideShorts) return; // If the user chooses not to hide shorts, then immediately return this function
     console.log("Removing");
