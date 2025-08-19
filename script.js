@@ -21,12 +21,30 @@ function redirect(link = document.URL) {
 async function findSections(){
     let hideShorts = await browser.storage.local.get("hideShorts");
     console.log("hideShorts value:", hideShorts.hideShorts);
-    if(!hideShorts.hideShorts) return; // If the user chooses not to hide shorts, then immediately return this function
+    if(!hideShorts.hideShorts) return; //If the user chooses not to hide shorts, then immediately return this function
     console.log("Removing");
     let observer = new MutationObserver(() => {
-        var shelves = document.querySelectorAll("ytd-rich-shelf-renderer");
+        let shelves = document.querySelectorAll("ytd-rich-shelf-renderer");
         for(const shelf of shelves){
             shelf.remove();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+async function removeTab(){
+    let hideShortsTab = await browser.storage.local.get("hideShortsTab");
+    console.log("hideShortsTab value:", hideShortsTab.hideShortsTab);
+    if(!hideShortsTab.hideShortsTab) return; 
+    console.log("Removing Shorts tab");
+    let observer = new MutationObserver(() => {
+        let tab = document.querySelector('[aria-label="Shorts"]');
+        if(tab){
+            tab.remove();
+        }
+        let expandedTab = document.querySelector('[title="Shorts"]').closest("ytd-guide-entry-renderer");
+        if(expandedTab){
+            expandedTab.remove();
         }
     });
     observer.observe(document.body, { childList: true, subtree: true });
@@ -43,9 +61,12 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         console.log("Home action triggered");
         await findSections();
         sendResponse({status: "sections removed"});
+        await removeTab();
+        console.log("Shorts tab removed");
         return true; 
     }
     return false;
 });
 
 findSections(); //This is to call it on initial load
+removeTab();
