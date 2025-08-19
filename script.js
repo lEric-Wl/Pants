@@ -18,10 +18,33 @@ function redirect(link = document.URL) {
     }
 }
 
+var hideShorts = false;
+function findSections(){
+    if(!hideShorts) return; // If the user chooses not to hide shorts, then immediately return this function
+    console.log("Removing");
+    let observer = new MutationObserver(() => {
+        var shelves = document.querySelectorAll("ytd-rich-shelf-renderer");
+        for(const shelf of shelves){
+            shelf.remove();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("Message received:", message);
     if (message.action === "redirect") {
         redirect();
         sendResponse({status: "done"});
         return true; 
     }
+    else if (message.action === "home" && hideShorts == true){
+        console.log("Home action triggered");
+        findSections();
+        sendResponse({status: "sections removed"});
+        return true; 
+    }
+    return false;
 });
+
+findSections();
