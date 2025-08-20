@@ -12,4 +12,5 @@ function listener(details){
 }
 
 //Param: function, website filter
-browser.webNavigation.onHistoryStateUpdated.addListener(listener,null); //This works in the background and checks for url changes
+filter = {url: [{hostContains: "youtube.com"}]}; //This will only run on youtube.com
+browser.webNavigation.onHistoryStateUpdated.addListener(listener,filter); //This works in the background and checks for url changes
