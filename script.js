@@ -1,13 +1,15 @@
 async function redirect(link = document.URL){
     console.log("redirect called");
+
     let on = await browser.storage.local.get("onOff");
     console.log("onOff value:", on.onOff);
     if(!on.onOff) return; 
-    console.log(link);
+    
     if(link.includes("shorts")){
         console.log("shorts detected");
         let videoId = link.split("/shorts/")[1].split("?")[0]; //Takes the videoId
-        history.back();
+
+        history.back(); //That way, the shorts page does not try to load in
         window.location.href = "https://www.youtube.com/watch?v=" + videoId;
         console.log("redirected");
             
