@@ -1,10 +1,16 @@
-function redirect(link = document.URL) {
-    if (link.includes("shorts")) {
+async function redirect(link = document.URL){
+    console.log("redirect called");
+    let on = await browser.storage.local.get("onOff");
+    console.log("onOff value:", on.onOff);
+    if(!on.onOff) return; 
+    console.log(link);
+    if(link.includes("shorts")){
         console.log("shorts detected");
         let videoId = link.split("/shorts/")[1].split("?")[0]; //Takes the videoId
-        window.location.replace("https://www.youtube.com/watch?v=" + videoId);
+        history.back();
+        window.location.href = "https://www.youtube.com/watch?v=" + videoId;
         console.log("redirected");
-
+            
         //Autoplays the video, as if you clicked on it normally
         const video = document.querySelector('video');
         if(video){
@@ -16,15 +22,18 @@ function redirect(link = document.URL) {
             });
         }
     }
+    link = document.URL; //Update the link to after redirect
+    findSections("ytd-reel-shelf-renderer"); //The main player also has a shorts section
+
 }
 
-async function findSections(){
+async function findSections(section = "ytd-rich-shelf-renderer"){
     let hideShorts = await browser.storage.local.get("hideShorts");
     console.log("hideShorts value:", hideShorts.hideShorts);
     if(!hideShorts.hideShorts) return; //If the user chooses not to hide shorts, then immediately return this function
     console.log("Removing");
     let observer = new MutationObserver(() => {
-        let shelves = document.querySelectorAll("ytd-rich-shelf-renderer");
+        let shelves = document.querySelectorAll(section);
         for(const shelf of shelves){
             shelf.remove();
         }
@@ -42,31 +51,19 @@ async function removeTab(){
         if(tab){
             tab.remove();
         }
-        let expandedTab = document.querySelector('[title="Shorts"]').closest("ytd-guide-entry-renderer");
+        let expandedTab = document.querySelector('[title="Shorts"]');
         if(expandedTab){
-            expandedTab.remove();
-        }
+            expandedTab=expandedTab.closest("ytd-guide-entry-renderer");
+            if(expandedTab){
+                expandedTab.remove();
+            }
+        }   
     });
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
-browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    console.log("Message received:", message);
-    if (message.action === "redirect") {
-        redirect();
-        sendResponse({status: "done"});
-        return true; 
-    }
-    else if (message.action === "home"){
-        console.log("Home action triggered");
-        await findSections();
-        sendResponse({status: "sections removed"});
-        await removeTab();
-        console.log("Shorts tab removed");
-        return true; 
-    }
-    return false;
+document.addEventListener("yt-navigate-start", () => redirect());
+document.addEventListener("DOMContentLoaded", () => {
+    findSections(); //This is to call it on initial load
+    removeTab();
 });
-
-findSections(); //This is to call it on initial load
-removeTab();
