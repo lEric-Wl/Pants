@@ -30,9 +30,6 @@ async function redirect(link = document.URL){
 }
 
 async function afterRedirect(){
-    if(document.URL == "*://*.youtube.com") return; 
-    console.log("in a video player");
-
     let video = document.querySelector("video");
 
     let observer = new MutationObserver(() => {
@@ -42,9 +39,12 @@ async function afterRedirect(){
         if(video){ //Autoplays the video
             console.log("found the video", video);
             video.play().catch(error => { //This is based on user autoplay settings. Some needs to be muted for autoplay to work
+                console.log("Playing blocked; Now trying to play muted. ", error);
                 video.muted = true; // Mute the video if autoplay fails
-                video.play().catch(error => { //Some just does not allow autoplay at all
-                    console.error("Autoplay blocked");
+                video.play().then( () => {
+                    console.log("Playing muted");
+                }).catch(error => { //Some just does not allow autoplay at all
+                    console.error("Playing muted blocked. ", error);
                 });
             });
         }
@@ -91,9 +91,15 @@ async function removeTab(){
 }
 
 document.addEventListener("yt-navigate-start", () => redirect());
-document.addEventListener("yt-navigate-finish", () => afterRedirect());
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Dom content loaded for url: ", document.URL);
-    findSections(); //This is to call it on initial load
-    removeTab();
+    if(location.hostname == "www.youtube.com" && location.pathname == "/"){ 
+        console.log("On the home page");
+        findSections(); //This is to call it on initial load
+        removeTab();
+    }
+    else{
+        console.log("On the video page");
+        afterRedirect();
+    }
 });
