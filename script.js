@@ -15,10 +15,10 @@ async function redirect(link = document.URL){
             
         //Autoplays the video, as if you clicked on it normally
         const video = document.querySelector('video');
-        if(video){
+        if(false){
             video.play().catch(error => { //This is based on user autoplay settings. Some needs to be muted for autoplay to work
                 video.muted = true; // Mute the video if autoplay fails
-                video.play().catch(err => { //Some just does not allow autoplay at all
+                video.play().catch(error => { //Some just does not allow autoplay at all
                     console.error("Autoplay blocked");
                 });
             });
@@ -27,6 +27,32 @@ async function redirect(link = document.URL){
     link = document.URL; //Update the link to after redirect
     findSections("ytd-reel-shelf-renderer"); //The main player also has a shorts section
 
+}
+
+async function afterRedirect(){
+    if(document.URL == "*://*.youtube.com") return; 
+    console.log("in a video player");
+
+    let video = document.querySelector("video");
+
+    let observer = new MutationObserver(() => {
+        findSections("ytd-reel-shelf-renderer");
+
+        console.log("found the player");
+        if(video){ //Autoplays the video
+            console.log("found the video", video);
+            video.play().catch(error => { //This is based on user autoplay settings. Some needs to be muted for autoplay to work
+                video.muted = true; // Mute the video if autoplay fails
+                video.play().catch(error => { //Some just does not allow autoplay at all
+                    console.error("Autoplay blocked");
+                });
+            });
+        }
+
+        observer.disconnect();
+    });
+
+    observer.observe(video, {"attributes": true, "childList": true, "subtree": true});
 }
 
 async function findSections(section = "ytd-rich-shelf-renderer"){
@@ -65,7 +91,9 @@ async function removeTab(){
 }
 
 document.addEventListener("yt-navigate-start", () => redirect());
+document.addEventListener("yt-navigate-finish", () => afterRedirect());
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("Dom content loaded for url: ", document.URL);
     findSections(); //This is to call it on initial load
     removeTab();
 });
