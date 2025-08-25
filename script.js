@@ -1,7 +1,5 @@
 async function redirect(link = document.URL){
-    console.log("redirect called");
-
-    let on = await browser.storage.local.get("onOff");
+    let on = await browser.storage.local.get({"onOff": true});
     console.log("onOff value:", on.onOff);
     if(!on.onOff) return; 
     
@@ -11,43 +9,30 @@ async function redirect(link = document.URL){
 
         history.back(); //That way, the shorts page does not try to load in
         window.location.href = "https://www.youtube.com/watch?v=" + videoId;
-        console.log("redirected");
-            
-        //Autoplays the video, as if you clicked on it normally
-        const video = document.querySelector('video');
-        if(false){
-            video.play().catch(error => { //This is based on user autoplay settings. Some needs to be muted for autoplay to work
-                video.muted = true; // Mute the video if autoplay fails
-                video.play().catch(error => { //Some just does not allow autoplay at all
-                    console.error("Autoplay blocked");
-                });
-            });
-        }
+                   
     }
-    link = document.URL; //Update the link to after redirect
-    findSections("ytd-reel-shelf-renderer"); //The main player also has a shorts section
-
 }
 
 async function afterRedirect(){
     let video = document.querySelector("video");
+    let player = document.getElementById("movie_player");
 
     let observer = new MutationObserver(() => {
         findSections("ytd-reel-shelf-renderer");
 
-        console.log("found the player");
-        if(video){ //Autoplays the video
-            console.log("found the video", video);
-            video.play().catch(error => { //This is based on user autoplay settings. Some needs to be muted for autoplay to work
-                console.log("Playing blocked; Now trying to play muted. ", error);
-                video.muted = true; // Mute the video if autoplay fails
-                video.play().then( () => {
-                    console.log("Playing muted");
-                }).catch(error => { //Some just does not allow autoplay at all
-                    console.error("Playing muted blocked. ", error);
-                });
-            });
-        }
+        console.log("found the player", video);
+
+        //Video.play is just to check if autoplay is enabled with audio. If it is, the video should just play 
+        video.play().catch((error) =>{
+            if(player){ //Autoplays the video if the setting is autoplay on mute
+                console.log("adding script to play video muted");
+                addScript(`
+                    let player = document.getElementById("movie_player");
+                    player.mute()
+                    player.playVideo();
+                    `);
+            }
+        });
 
         observer.disconnect();
     });
@@ -55,8 +40,15 @@ async function afterRedirect(){
     observer.observe(video, {"attributes": true, "childList": true, "subtree": true});
 }
 
+function addScript(code){
+    let script = document.createElement("script");
+    script.textContent = code;
+    document.documentElement.appendChild(script);
+    script.remove();
+}
+
 async function findSections(section = "ytd-rich-shelf-renderer"){
-    let hideShorts = await browser.storage.local.get("hideShorts");
+    let hideShorts = await browser.storage.local.get({"hideShorts": false});
     console.log("hideShorts value:", hideShorts.hideShorts);
     if(!hideShorts.hideShorts) return; //If the user chooses not to hide shorts, then immediately return this function
     console.log("Removing");
@@ -70,10 +62,9 @@ async function findSections(section = "ytd-rich-shelf-renderer"){
 }
 
 async function removeTab(){
-    let hideShortsTab = await browser.storage.local.get("hideShortsTab");
+    let hideShortsTab = await browser.storage.local.get({"hideShortsTab": false});
     console.log("hideShortsTab value:", hideShortsTab.hideShortsTab);
     if(!hideShortsTab.hideShortsTab) return; 
-    console.log("Removing Shorts tab");
     let observer = new MutationObserver(() => {
         let tab = document.querySelector('[aria-label="Shorts"]');
         if(tab){
@@ -103,3 +94,4 @@ document.addEventListener("DOMContentLoaded", () => {
         afterRedirect();
     }
 });
+
