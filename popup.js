@@ -5,7 +5,7 @@ const icon = document.getElementById("icon");
 const bg = document.getElementById("bg");
 
 //load saves
-await browser.storage.local.get(["hideShorts","hideShortsTab","onOff"]).then(result => {
+browser.storage.local.get(["hideShorts","hideShortsTab","onOff"]).then(result => {
     sectionCheckbox.checked = result.hideShorts || false;
     tabCheckbox.checked = result.hideShortsTab || false;
     onOff.checked = result.onOff==undefined ? true : result.onOff; 

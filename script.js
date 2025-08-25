@@ -9,7 +9,6 @@ async function redirect(link = document.URL){
 
         history.back(); //That way, the shorts page does not try to load in
         window.location.href = "https://www.youtube.com/watch?v=" + videoId;
-                   
     }
 }
 
