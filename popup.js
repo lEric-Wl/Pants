@@ -5,7 +5,7 @@ const icon = document.getElementById("icon");
 const bg = document.getElementById("bg");
 
 //load saves
-browser.storage.local.get(["hideShorts","hideShortsTab","onOff"]).then(result => {
+chrome.storage.local.get(["hideShorts","hideShortsTab","onOff"]).then(result => {
     sectionCheckbox.checked = result.hideShorts || false;
     tabCheckbox.checked = result.hideShortsTab || false;
     onOff.checked = result.onOff==undefined ? true : result.onOff; 
@@ -13,7 +13,7 @@ browser.storage.local.get(["hideShorts","hideShortsTab","onOff"]).then(result =>
 
 //save changes
 function save(){
-    browser.storage.local.set({
+    chrome.storage.local.set({
         "hideShorts":sectionCheckbox.checked,
         "hideShortsTab":tabCheckbox.checked,
         "onOff": onOff.checked

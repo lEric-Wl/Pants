@@ -1,5 +1,9 @@
+if (typeof browser === "undefined" && typeof chrome !== "undefined") {
+    var browser = chrome;
+}
+
 async function redirect(link = document.URL){
-    let on = await browser.storage.local.get({"onOff": true});
+    let on = await chrome.storage.local.get({"onOff": true});
     console.log("onOff value:", on.onOff);
     if(!on.onOff) return; 
     
@@ -47,7 +51,7 @@ function addScript(code){
 }
 
 async function findSections(section = "ytd-rich-shelf-renderer"){
-    let hideShorts = await browser.storage.local.get({"hideShorts": false});
+    let hideShorts = await chrome.storage.local.get({"hideShorts": false});
     console.log("hideShorts value:", hideShorts.hideShorts);
     if(!hideShorts.hideShorts) return; //If the user chooses not to hide shorts, then immediately return this function
     console.log("Removing");
@@ -61,7 +65,7 @@ async function findSections(section = "ytd-rich-shelf-renderer"){
 }
 
 async function removeTab(){
-    let hideShortsTab = await browser.storage.local.get({"hideShortsTab": false});
+    let hideShortsTab = await chrome.storage.local.get({"hideShortsTab": false});
     console.log("hideShortsTab value:", hideShortsTab.hideShortsTab);
     if(!hideShortsTab.hideShortsTab) return; 
     let observer = new MutationObserver(() => {

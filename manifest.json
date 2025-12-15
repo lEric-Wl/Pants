@@ -1,6 +1,6 @@
 {
-    "manifest_version": 2,
-    "version": "2.1.0",
+    "manifest_version": 3,
+    "version": "2.1.1",
     "name": "Pants",
     "description": "Makes Youtube Shorts less addictive",
     "content_scripts": [
@@ -13,7 +13,7 @@
     "permissions": [
         "storage"
     ],
-    "browser_action":{
+    "action":{
         "default_icon": "icon.png",
         "default_title": "Pants",
         "default_popup": "popup.html"
