@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "version": "2.1.1",
+    "version": "3.0",
     "name": "Pants",
     "description": "Makes Youtube Shorts less addictive",
     "content_scripts": [
